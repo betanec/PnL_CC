@@ -40,7 +40,8 @@ def main():
   proxies_req = Request('https://www.sslproxies.org/')
   proxies_req.add_header('User-Agent', ua.random)
   proxies_doc = urlopen(proxies_req).read().decode('utf8')
-
+  
+  # обосралось все на этом моменте
   soup = BeautifulSoup(proxies_doc, 'html.parser')
   proxies_table = soup.find(id='proxylisttable')
   print(proxies_table)
