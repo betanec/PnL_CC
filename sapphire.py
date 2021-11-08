@@ -43,7 +43,7 @@ def tracker():
     total = [sub_total[i]+[current_p[i][1]*float(sub_total[i][2])]+[current_p[i][1]*float(sub_total[i][2])-float(sub_total[i][1])] + [((current_p[i][1]*float(sub_total[i][2])-float(sub_total[i][1]))/float(sub_total[i][1]))*100] for i in range(len(current_p)) if sub_total[i][0]==current_p[i][0]]
     # print(pd.DataFrame(total,columns=['СС','FP','Q','CP(1)*Q',str(sum([i[4] for i in total]))[:4] + '+/- ' ,'%']))
     
-    return total 
+    return total
     
 
 class TestApp(Frame):
