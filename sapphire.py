@@ -86,7 +86,7 @@ def get_prox():
 
 def tracker(ignore = []):
 
-    proxies = [x[1::] for x in csv.reader(open('prox_container.csv',"r"))]
+    proxies = [x[1::] for x in csv.reader(open('prox_container.csv',"r")) if x not in ignore]
     try:
         user_agent = random.choice(user_agent_list)
         headers= {'User-Agent': user_agent, "Accept-Language": "en-US, en;q=0.5"}
@@ -105,7 +105,7 @@ def tracker(ignore = []):
     except AttributeError:
         ignore.append(proxy)
         print(ignore)
-        total = [sub_total[i] + [0,0,0] for i in range(len(sub_total))]
+        total = [sub_total[i] + ['update','update','update'] for i in range(len(sub_total))]
     return (total, ignore)
     
 
