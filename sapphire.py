@@ -86,27 +86,29 @@ def get_prox():
 
 def tracker(ignore = []):
 
-    proxies = [x[1::] for x in csv.reader(open('prox_container.csv',"r")) if x not in ignore]
+    proxies_list = [x[1::] for x in csv.reader(open('prox_container.csv',"r")) if x not in ignore][::-1]
     try:
         user_agent = random.choice(user_agent_list)
         headers= {'User-Agent': user_agent, "Accept-Language": "en-US, en;q=0.5"}
-        proxy = proxies[len(ignore)]
+        proxy = {"https": 'https://'+ proxies_list[len(ignore)][0] + ':' + proxies_list[len(ignore)][1], "http": 'https://'+ proxies_list[len(ignore)][0] + ':' + proxies_list[len(ignore)][1]}
         print(proxy)
         
 
         coin_url = ','.join([x[0] for x in sub_total])
         url = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms={}&tsyms=USD'.format(coin_url)
-        r = requests.get(url,headers=headers, proxies={'ip':proxy[0],'port':proxy[1]})
-        # pprint.pprint(r.json())
+        r = requests.get(url,headers=headers, proxies=proxy)
+        #print(requests.get('https://httpbin.org/ip', proxies=proxy))
+        pprint.pprint(r.json())
 
         current_p = [[k,list(v.values())[0]] for k,v in r.json().items()]
         
         total = [sub_total[i]+[current_p[i][1]*float(sub_total[i][2])]+[current_p[i][1]*float(sub_total[i][2])-float(sub_total[i][1])] + [((current_p[i][1]*float(sub_total[i][2])-float(sub_total[i][1]))/float(sub_total[i][1]))*100] for i in range(len(sub_total)) if sub_total[i][0]==current_p[i][0]]    
-    except AttributeError:
+    except (AttributeError, requests.exceptions.ProxyError):
         ignore.append(proxy)
         print(ignore)
-        total = [sub_total[i] + ['update','update','update'] for i in range(len(sub_total))]
-    return (total, ignore)
+        total = [sub_total[i] + [0,0,0] for i in range(len(sub_total))]
+        get_prox()
+    return (total, ignore)  
     
 
 class TestApp(Frame):
