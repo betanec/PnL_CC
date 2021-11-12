@@ -44,7 +44,7 @@ user_agent_list = (
     'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 2.0.50727; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)'
 )
 
-coins = [x[1:] for x in csv.reader(open("//home//kmd//DEVNULL//PnL_CC//CC_coins.csv","r"))]
+coins = [x[1:] for x in csv.reader(open("CC_coins.csv","r"))]
 # print(coins)
 dups = [coins[i:i+2] for i in range(len(coins)-1) if coins[i][0] == coins[i+1][0]]
 # print(dups)
@@ -83,31 +83,34 @@ def get_prox():
     
     with open('prox_container.csv','a', newline='', errors = 'ignore') as f:
         pd.concat([df_container]).to_csv(f, header = False)
-
+CC_cash =[sub_total[i] + [0,0,0] for i in range(len(sub_total))]
 def tracker(ignore = []):
 
-    proxies_list = [x[1::] for x in csv.reader(open('prox_container.csv',"r")) if x not in ignore][::-1]
+    proxies_list = [x[1::] for x in csv.reader(open('prox_container.csv',"r")) if x[1] not in ignore][::-1]
+    print('proxies_list', proxies_list)
     try:
         user_agent = random.choice(user_agent_list)
         headers= {'User-Agent': user_agent, "Accept-Language": "en-US, en;q=0.5"}
-        proxy = {"https": 'https://'+ proxies_list[len(ignore)][0] + ':' + proxies_list[len(ignore)][1], "http": 'https://'+ proxies_list[len(ignore)][0] + ':' + proxies_list[len(ignore)][1]}
+        proxy = {"https": 'https://'+ proxies_list[0][0] + ':' + proxies_list[0][1], "http": 'https://'+ proxies_list[0][0] + ':' + proxies_list[0][1]}
         print(proxy)
         
 
         coin_url = ','.join([x[0] for x in sub_total])
         url = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms={}&tsyms=USD'.format(coin_url)
-        r = requests.get(url,headers=headers, proxies=proxy)
+        r = requests.get(url,headers=headers, proxies=proxy, timeout=5)
         #print(requests.get('https://httpbin.org/ip', proxies=proxy))
         pprint.pprint(r.json())
 
         current_p = [[k,list(v.values())[0]] for k,v in r.json().items()]
         
         total = [sub_total[i]+[current_p[i][1]*float(sub_total[i][2])]+[current_p[i][1]*float(sub_total[i][2])-float(sub_total[i][1])] + [((current_p[i][1]*float(sub_total[i][2])-float(sub_total[i][1]))/float(sub_total[i][1]))*100] for i in range(len(sub_total)) if sub_total[i][0]==current_p[i][0]]    
-    except (AttributeError, requests.exceptions.ProxyError):
-        ignore.append(proxy)
-        print(ignore)
-        total = [sub_total[i] + [0,0,0] for i in range(len(sub_total))]
+    except (AttributeError, requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout, requests.exceptions.SSLError):
+        ignore.append(proxies_list[0][0])
+        print('ignore', ignore)
+        global CC_cash
         get_prox()
+        return(CC_cash, ignore)
+    CC_cash = total
     return (total, ignore)  
     
 
