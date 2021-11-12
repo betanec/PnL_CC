@@ -1,0 +1,7 @@
+requests
+pandas
+pandastable
+fake_useragent
+bs4
+IPython
+requests
