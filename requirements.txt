@@ -5,3 +5,4 @@ fake_useragent
 bs4
 IPython
 requests
+urllib3==1.23
