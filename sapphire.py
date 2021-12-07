@@ -83,6 +83,7 @@ def get_prox():
     
     with open('prox_container.csv','a', newline='', errors = 'ignore') as f:
         pd.concat([df_container]).to_csv(f, header = False)
+
 CC_cash =[sub_total[i] + [0,0,0] for i in range(len(sub_total))]
 def tracker(ignore = []):
 
@@ -92,27 +93,27 @@ def tracker(ignore = []):
         user_agent = random.choice(user_agent_list)
         headers= {'User-Agent': user_agent, "Accept-Language": "en-US, en;q=0.5"}
         proxy = {"https": 'https://'+ proxies_list[0][0] + ':' + proxies_list[0][1], "http": 'https://'+ proxies_list[0][0] + ':' + proxies_list[0][1]}
-        print('current_proxy: ',proxy)
-        
-
+        # print('current_proxy: ',proxy)
+    
         coin_url = ','.join([x[0] for x in sub_total])
-        url = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms={}&tsyms=USD'.format(coin_url)
+        url = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms={}&tsyms=USD'.format(coin_url) 
         r = requests.get(url,headers=headers, proxies=proxy, timeout=5,verify=False)
         #print(requests.get('https://httpbin.org/ip', proxies=proxy))
-        pprint.pprint(r.json())
-
+        # pprint.pprint(r.json())
         current_p = [[k,list(v.values())[0]] for k,v in r.json().items()]
+        # print(current_p)
         
         total = [sub_total[i]+[current_p[i][1]*float(sub_total[i][2])]+[current_p[i][1]*float(sub_total[i][2])-float(sub_total[i][1])] + [((current_p[i][1]*float(sub_total[i][2])-float(sub_total[i][1]))/float(sub_total[i][1]))*100] for i in range(len(sub_total)) if sub_total[i][0]==current_p[i][0]]    
-    except (AttributeError,requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout, IndexError):
+    except (AttributeError,requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout,requests.exceptions.ReadTimeout, IndexError):
+        # json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
         ignore.append(proxies_list[0][0])
-        print('ignore', ignore)
+        # print('ignore', ignore)
         global CC_cash
         get_prox()
         return(CC_cash, ignore)
     CC_cash = total
     return (total, ignore) 
-    
+   
 
 class TestApp(Frame):
 
@@ -145,6 +146,5 @@ class TestApp(Frame):
         # self.pack(fill="both",expand=True)
         self.after(1000,self.update_data)
             
-
 app = TestApp()
 app.mainloop()
