@@ -4,14 +4,15 @@ import csv
 import pandas as pd
 from tkinter import *
 from pandastable import Table
-import pprint
-from typing import Counter
+# import pprint
+# from typing import Counter
 from urllib.request import Request, urlopen
 from fake_useragent import UserAgent
 import random
 from bs4 import BeautifulSoup
-from IPython.core.display import clear_output
+# from IPython.core.display import clear_output
 from requests.api import get
+import numpy as np
 
 # import main
 # import random
@@ -44,21 +45,28 @@ user_agent_list = (
     'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 2.0.50727; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)'
 )
 
-coins = [x[1:] for x in csv.reader(open("CC_coins.csv","r"))]
+# coins = pd.DataFrame([x[1:] for x in csv.reader(open("CC_coins.csv","r"))]).groupby(0).aggregate(lambda x: list(x)).reset_index().values.tolist()
 # print(coins)
-dups = [coins[i:i+2] for i in range(len(coins)-1) if coins[i][0] == coins[i+1][0]]
-# print(dups)
-sumarized_dupes = []
-for i in dups:
-    calculate_usd = 0
-    calculate_tok = 0
-    for j in i:
-        token_name = j[0]
-        calculate_usd +=float(j[1]) 
-        calculate_tok +=float(j[2])
-    sumarized_dupes.append([token_name,calculate_usd,calculate_tok])
-# print(sumarized_dupes)
-sub_total = [x for x in coins if x not in [x for xs in dups for x in xs]] + sumarized_dupes
+# sub_total = [[coins[i][0], sum([float(j) for j in coins[i][1]]), sum([float(j) for j in coins[i][2]])] for i in range(len(coins))]
+# print(sub_total)
+
+d = dict()
+with open("CC_coins.csv", "r") as f:
+# with open(r'/home/makbuk/dev/PnL_CC/finace_management/Vovak.csv', "r") as f:
+
+    for i in csv.reader(f):
+        if i[1] in d:
+            d[i[1]] += np.fromiter(map(float, i[2:]), dtype = np.float64)
+            # print(type(np.fromiter(map(float, i[2:]), dtype = np.float64)))
+        else:
+            #[i[1]] +
+            d[i[1]] =  np.fromiter(map(float, i[2:]), dtype = np.float64) #.insert(0, )
+
+sub_total = [[i]+list(d[i]) for i in d]
+
+# pd.DataFrame(d).T.values.tolist()#.pivot_table(index="n", columns="Therapy", values="expr"))
+# print(sub_total)
+
 
 ua = UserAgent()
 
@@ -74,6 +82,7 @@ def get_prox():
         try:    
             if 'table-striped' in table['class']:
                 proxies_list =  [i for i in [i.text for i in table.find_all('td')] if all(x.isdigit() for x in i.split('.'))]
+                # print(proxies_list)
         except KeyError:
             pass
     
@@ -97,7 +106,9 @@ def tracker(ignore = []):
     
         coin_url = ','.join([x[0] for x in sub_total])
         url = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms={}&tsyms=USD'.format(coin_url) 
-        r = requests.get(url,headers=headers, proxies=proxy, timeout=5,verify=False)
+        # r = requests.get(url,headers=headers, proxies=proxy, timeout=5,verify=False)
+        r = requests.get(url,headers=headers)
+
         #print(requests.get('https://httpbin.org/ip', proxies=proxy))
         # pprint.pprint(r.json())
         current_p = [[k,list(v.values())[0]] for k,v in r.json().items()]
@@ -145,6 +156,6 @@ class TestApp(Frame):
         # self.table.grid()
         # self.pack(fill="both",expand=True)
         self.after(1000,self.update_data)
-            
+
 app = TestApp()
 app.mainloop()
