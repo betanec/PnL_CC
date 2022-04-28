@@ -4,7 +4,7 @@ import csv
 import pandas as pd
 from tkinter import *
 from pandastable import Table
-# import pprint
+import pprint
 # from typing import Counter
 from urllib.request import Request, urlopen
 from fake_useragent import UserAgent
@@ -59,7 +59,6 @@ with open("CC_coins.csv", "r") as f:
             d[i[1]] += np.fromiter(map(float, i[2:]), dtype = np.float64)
             # print(type(np.fromiter(map(float, i[2:]), dtype = np.float64)))
         else:
-            #[i[1]] +
             d[i[1]] =  np.fromiter(map(float, i[2:]), dtype = np.float64) #.insert(0, )
 
 sub_total = [[i]+list(d[i]) for i in d]
@@ -104,7 +103,7 @@ def tracker(ignore = []):
         proxy = {"https": 'https://'+ proxies_list[0][0] + ':' + proxies_list[0][1], "http": 'https://'+ proxies_list[0][0] + ':' + proxies_list[0][1]}
         # print('current_proxy: ',proxy)
     
-        coin_url = ','.join([x[0] for x in sub_total])
+        coin_url = ','.join([x[0] for x in sub_total]) + ',BTC'
         url = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms={}&tsyms=USD'.format(coin_url) 
         # r = requests.get(url,headers=headers, proxies=proxy, timeout=5,verify=False)
         r = requests.get(url,headers=headers)
@@ -114,7 +113,9 @@ def tracker(ignore = []):
         current_p = [[k,list(v.values())[0]] for k,v in r.json().items()]
         # print(current_p)
         
-        total = [sub_total[i]+[current_p[i][1]*float(sub_total[i][2])]+[current_p[i][1]*float(sub_total[i][2])-float(sub_total[i][1])] + [((current_p[i][1]*float(sub_total[i][2])-float(sub_total[i][1]))/float(sub_total[i][1]))*100] + ['//'] for i in range(len(sub_total)) if sub_total[i][0]==current_p[i][0]]    
+        total = [sub_total[i]+[current_p[i][1]*float(sub_total[i][2])]+[current_p[i][1]*float(sub_total[i][2])-float(sub_total[i][1])] + [((current_p[i][1]*float(sub_total[i][2])-float(sub_total[i][1]))/float(sub_total[i][1]))*100] + ['//'] 
+        for i in range(len(sub_total)) if sub_total[i][0]==current_p[i][0]] +[['BTC',0,0,0,0,float(current_p[-1][1]),'//']]
+        # print(total)
     except (AttributeError,requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout,requests.exceptions.ReadTimeout, IndexError):
         # json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
         ignore.append(proxies_list[0][0])
