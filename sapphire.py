@@ -113,8 +113,8 @@ def tracker(ignore = []):
         current_p = [[k,list(v.values())[0]] for k,v in r.json().items()]
         # print(current_p)
         
-        total = [sub_total[i]+[current_p[i][1]*float(sub_total[i][2])]+[current_p[i][1]*float(sub_total[i][2])-float(sub_total[i][1])] + [((current_p[i][1]*float(sub_total[i][2])-float(sub_total[i][1]))/float(sub_total[i][1]))*100] + ['//'] 
-        for i in range(len(sub_total)) if sub_total[i][0]==current_p[i][0]] +[['BTC',0,0,0,0,float(current_p[-1][1]),'//']]
+        total = [sub_total[i]+[current_p[i][1]*float(sub_total[i][2])]+[current_p[i][1]*float(sub_total[i][2])-float(sub_total[i][1])] + [((current_p[i][1]*float(sub_total[i][2])-float(sub_total[i][1]))/float(sub_total[i][1]))*100] + [float(current_p[i][1])] 
+        for i in range(len(sub_total)) if sub_total[i][0]==current_p[i][0]] +[['BTC',0,0,0,0,0,float(current_p[-1][1])]]
         # print(total)
     except (AttributeError,requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout,requests.exceptions.ReadTimeout, IndexError):
         # json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
@@ -141,7 +141,7 @@ class TestApp(Frame):
         f.pack(fill="both",expand=True)
         # f.grid()
         total, self.ignore = tracker(self.ignore)
-        df = pd.DataFrame(total,columns=['СС','FP=' + str('%.0f' % sum([float(i[1]) for i in total])),'Q','CPQ='+str('%.0f' % sum([float(i[3]) for i in total])),str('%.1f' % sum([i[4] for i in total])) + ' +/-',str('%.1f' % ((sum([float(i[4]) for i in total])*100)/sum([float(i[1]) for i in total])) )+'%', '//'])
+        df = pd.DataFrame(total,columns=['СС','FP=' + str('%.0f' % sum([float(i[1]) for i in total])),'Q','CPQ='+str('%.0f' % sum([float(i[3]) for i in total])),str('%.1f' % sum([i[4] for i in total])) + ' +/-',str('%.1f' % ((sum([float(i[4]) for i in total])*100)/sum([float(i[1]) for i in total])) )+'%', 'PF1'])
         self.table = Table(f, dataframe=df)
         self.table.show()
         self.update_data()
@@ -150,7 +150,7 @@ class TestApp(Frame):
     def update_data(self):
         # self.tracker = tracker()
         total, self.ignore = tracker(self.ignore)
-        df = pd.DataFrame(total,columns=['СС','FP=' + str('%.0f' % sum([float(i[1]) for i in total])),'Q','CPQ='+str('%.0f' % sum([float(i[3]) for i in total])),str('%.1f' % sum([i[4] for i in total])) + ' +/-',str('%.1f' % ((sum([float(i[4]) for i in total])*100)/sum([float(i[1]) for i in total])) )+'%', '//'])
+        df = pd.DataFrame(total,columns=['СС','FP=' + str('%.0f' % sum([float(i[1]) for i in total])),'Q','CPQ='+str('%.0f' % sum([float(i[3]) for i in total])),str('%.1f' % sum([i[4] for i in total])) + ' +/-',str('%.1f' % ((sum([float(i[4]) for i in total])*100)/sum([float(i[1]) for i in total])) )+'%', 'PF1'])
         self.table.model.df = df
         self.table.redraw()
         # self.table.grid_remove()
