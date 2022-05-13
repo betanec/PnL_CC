@@ -60,40 +60,4 @@ class ProxyHunter:
         loop.run_until_complete(asyncio.wait(tasks))
         loop.close()
         return [[i.result()] for i in tasks if i.result()]
-
-# res = ProxyHunter().getallproxy()
-# print(res)
-# print(kaka)
-
-    # ret_prox = getallproxy()
-    # print(ret_prox)
-    # checked_prox = checkproxy(ret_prox)
-    # print(checked_prox)
-
-# for prox in checked_prox:
-#     print(prox)
-#     url = 'https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=RUB,USD,JPY,EUR'
-#     user_agent = random.choice(UAGENT_LIST)
-#     headers= {'User-Agent': user_agent, "Accept-Language": "en-US, en;q=0.5"}
-#     proxy = {'https' if prox.find('https')!=-1 else 'http':prox}
-#     r = requests.get(url,headers=headers, proxies=proxy, timeout=5,verify=False)
-#     print(r.json())
-#     time.sleep(1)
-    
-
-
-# # def getdata(Proxies, CurrentProxy):
-# #     try:
-# #         s = requests.session();
-# #         s.proxies = {"http":Proxies[CurrentProxy]}   
-# #         resp = s.get("https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=RUB,USD,JPY,EUR")
-# #         if r"You are over your rate limit please upgrade your account!" in resp.text:
-# #             print(resp.text)
-# #             return -1
-# #         s.close();
-# #         print(resp.text)
-# #     except:
-# #         print(0)
-# #         print(Proxies[CurrentProxy])
-# #         return -1
-
+        
